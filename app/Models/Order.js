@@ -4,6 +4,12 @@
 const Model = use('Model')
 
 class Order extends Model {
+    static boot(){
+        super.boot()
+
+        this.addHook('afterFind','OrderHook.updateValues')
+        this.addHook('afterPaginate','OrderHook.updateCollectionValues')
+    }
     user() {
         return this.belongsTo('App/Models/user','user_id','id')
     }
