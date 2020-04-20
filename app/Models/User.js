@@ -20,6 +20,7 @@ class User extends Model {
       }
     })
   }
+
   static get traits () {
     return [
       '@provider:Adonis/Acl/HasRole',
@@ -41,14 +42,13 @@ class User extends Model {
     return this.hasMany('App/Models/Token')
   }
 
-  image(){
+  image () {
     return this.belongsTo('App/Models/Image')
   }
 
-  coupons(){
+  coupons () {
     return this.belongsToMany('App/Models/coupons')
   }
-
 }
 
 module.exports = User

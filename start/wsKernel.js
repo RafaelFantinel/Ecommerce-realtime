@@ -13,7 +13,6 @@ const Ws = use('Ws')
 const globalMiddleware = [
 ]
 
-
 /*
 |--------------------------------------------------------------------------
 | Named middleware
@@ -32,7 +31,6 @@ const globalMiddleware = [
 */
 const namedMiddleware = {
 }
-
 
 Ws
   .registerGlobal(globalMiddleware)

@@ -4,7 +4,7 @@
 const Schema = use('Schema')
 
 class CouponProductSchema extends Schema {
-  up() {
+  up () {
     this.create('coupon_product', table => {
       table.increments()
       table.integer('coupon_id').unsigned()
@@ -25,7 +25,7 @@ class CouponProductSchema extends Schema {
     })
   }
 
-  down() {
+  down () {
     this.drop('coupon_product')
   }
 }

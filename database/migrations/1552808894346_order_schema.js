@@ -4,7 +4,7 @@
 const Schema = use('Schema')
 
 class OrderSchema extends Schema {
-  up() {
+  up () {
     this.create('orders', table => {
       table.increments()
       table.decimal('total', 12, 2).defaultTo(0.0)
@@ -26,7 +26,7 @@ class OrderSchema extends Schema {
     })
   }
 
-  down() {
+  down () {
     this.drop('orders')
   }
 }

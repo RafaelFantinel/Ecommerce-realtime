@@ -11,27 +11,25 @@
 */
 
 const Role = use('Role')
-
 class RoleSeeder {
-  async run() {
-    //Cria o admin
+  async run () {
+    // Cria o admin
     await Role.create({
       name: 'Admin',
       slug: 'admin',
-      description: 'Administrador do sistema!',
-
+      description: 'Administrador do sistema!'
     })
-    //Cria o cargo de gerente
+    // cria o cargo de gerente
     await Role.create({
       name: 'Manager',
       slug: 'manager',
-      description: 'gerente do sistema'
+      description: 'Gerente da loja'
     })
-    //Cria o cargo de cliente
+    // cria o cargo de cliente
     await Role.create({
       name: 'Client',
-      slug: 'Client',
-      description: 'Cliente da loja'
+      slug: 'client',
+      description: 'Cliente da Loja'
     })
   }
 }

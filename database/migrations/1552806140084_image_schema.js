@@ -4,7 +4,7 @@
 const Schema = use('Schema')
 
 class ImageSchema extends Schema {
-  up() {
+  up () {
     this.create('images', table => {
       table.increments()
       table.string('path', 255)
@@ -15,7 +15,7 @@ class ImageSchema extends Schema {
     })
   }
 
-  down() {
+  down () {
     this.drop('images')
   }
 }

@@ -4,7 +4,7 @@
 const Schema = use('Schema')
 
 class PasswordResetSchema extends Schema {
-  up() {
+  up () {
     this.create('password_resets', table => {
       table.increments()
       table.string('email').notNullable()
@@ -25,7 +25,7 @@ class PasswordResetSchema extends Schema {
     })
   }
 
-  down() {
+  down () {
     this.drop('password_resets')
   }
 }
