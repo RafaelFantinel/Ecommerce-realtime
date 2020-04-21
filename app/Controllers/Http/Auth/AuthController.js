@@ -16,12 +16,13 @@ class AuthController {
         } catch (error) {
             await trx.rollback();
             return response.status(400).send({
-                message: 'Erro ao realizar cadastro!';
+                message: 'Erro ao realizar cadastro!'
             })
         }
     }
     async login({ request, response, auth }) {
         const { email, password } = request.all()
+        console.log(auth)
         let data = await auth.withRefreshToken().attempt(email, password)
         return response.send({ data })
 
