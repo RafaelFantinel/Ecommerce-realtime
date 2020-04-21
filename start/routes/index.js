@@ -19,3 +19,7 @@ const Route = use('Route')
 Route.on('/').render('welcome').as('home')
 
 require('./auth')
+
+
+//Importa as rotas de admin
+require('./admin')
