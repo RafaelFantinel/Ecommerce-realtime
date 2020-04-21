@@ -23,3 +23,6 @@ require('./auth')
 
 //Importa as rotas de admin
 require('./admin')
+
+//Importa as rotas de clientes
+require('./client')
