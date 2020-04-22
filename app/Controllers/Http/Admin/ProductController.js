@@ -68,7 +68,7 @@ class ProductController {
    * @param {View} ctx.view
    */
   async show ({ params: { id }, request, response, view }) {
-    const product = await Product.findOrFail()
+    const product = await Product.findOrFail(id)
     return response.send(product)
   }
 
