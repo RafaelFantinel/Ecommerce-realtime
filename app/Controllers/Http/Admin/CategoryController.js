@@ -20,7 +20,15 @@ class CategoryController {
    * @param {Object} ctx.pagination
    */
   async index ({ request, response, view, pagination }) {
-    const categories = await Category.query().paginate(pagination.page,pagination.limit)//Pagina 1 e limit 10
+
+    const  title  = request.input('title')
+    const query = Category.query()
+
+    if(title){
+      query.where('title','ILIKE',`%${title}%`)
+    }
+
+    const categories = await query.paginate(pagination.page,pagination.limit)//Pagina 1 e limit 10
     return response.send(categories)
   }
 
