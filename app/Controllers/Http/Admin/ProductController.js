@@ -3,7 +3,7 @@
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
-const Product = user('App/Models/Product')
+const Product = use('App/Models/Product')
 /**
  * Resourceful controller for interacting with products
  */
@@ -48,6 +48,14 @@ class ProductController {
    * @param {Response} ctx.response
    */
   async store ({ request, response }) {
+    try {
+      const { name , description , price , image_id } = request.all();
+      const product = await Product.create({ name, description, price, image_id })
+      return response.status(201).send(product)  
+    } catch (error) {
+      response.status(400).send({ message: 'Não foi possivel criar o produto '})
+    }
+    
   }
 
   /**
