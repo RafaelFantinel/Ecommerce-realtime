@@ -54,8 +54,8 @@ class CategoryController {
    */
   async store ({ request, response }) {
     try {
-      const { title, descripion , image_id } = request.all();
-      const category = await Category.create({ title, descripion , image_id})
+      const { title, description , image_id } = request.all();
+      const category = await Category.create({ title, description , image_id})
       return response.status(201).send(category)  
     } catch (error) {
       return response.status(400).send({
@@ -102,7 +102,7 @@ class CategoryController {
   async update ({ params: { id }, request, response }) {
     const category = await Category.findOrFail(id)
     const { title,description,image_id} = request.all()
-    category.merge({ title, descripion , image_id })
+    category.merge({ title, description , image_id })
     await category.save()
     return response.send(category)
   }
