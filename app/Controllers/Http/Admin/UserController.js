@@ -3,7 +3,7 @@
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
-const User = user('App/Models/User')
+const User = use('App/Models/User')
 /**
  * Resourceful controller for interacting with users
  */
@@ -19,7 +19,7 @@ class UserController {
    * @param {Object} ctx.pagination
    */
   async index({ request, response, view, pagination }) {
-    const { name } = request.input('name')
+    const  name  = request.input('name')
     const query = User.query();
 
     if (name) {
@@ -55,7 +55,7 @@ class UserController {
   async store({ request, response }) {
     try{
       const userData = request.only(['name',
-      'username',
+      'surname',
       'email',
       'password'
     ])
@@ -78,8 +78,7 @@ class UserController {
   async show({ params:{ id }, request, response, view }) {
 
     const user = await User.findOrFail(id)
-
-    return response.status(user)
+    return response.send(user)
   }
 
   /**
