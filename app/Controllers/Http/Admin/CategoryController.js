@@ -53,6 +53,16 @@ class CategoryController {
    * @param {Response} ctx.response
    */
   async store ({ request, response }) {
+    try {
+      const { title, descripion , image_id } = request.all();
+      const category = await Category.create({ title, descripion , image_id})
+      return response.status(201).send(category)  
+    } catch (error) {
+      return response.status(400).send({
+        message: 'Erro ao processar a sua solicitação!'
+      })
+    }
+    
   }
 
   /**
