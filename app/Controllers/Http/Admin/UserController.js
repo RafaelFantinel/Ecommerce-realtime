@@ -41,6 +41,7 @@ class UserController {
    * @param {View} ctx.view
    */
   async create({ request, response, view }) {
+    
   }
 
   /**
@@ -52,6 +53,17 @@ class UserController {
    * @param {Response} ctx.response
    */
   async store({ request, response }) {
+    try{
+      const userData = request.only(['name',
+      'username',
+      'email',
+      'password'
+    ])
+    const user = await User.create(userData)
+    return response.status(201).send(user)
+    }catch(error){
+      return response.status(400).send({ message : 'Não foi possivel criar o Usuario'})
+    }
   }
 
   /**
@@ -63,7 +75,11 @@ class UserController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show({ params, request, response, view }) {
+  async show({ params:{ id }, request, response, view }) {
+
+    const user = await User.findOrFail(id)
+
+    return response.status(user)
   }
 
   /**
