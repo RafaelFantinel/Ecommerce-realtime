@@ -3,7 +3,8 @@
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
-
+const Image = user('app/Models/Image')
+const { manage_single_upload } = use('App/Helpers')
 /**
  * Resourceful controller for interacting with images
  */
@@ -41,6 +42,35 @@ class ImageController {
    * @param {Response} ctx.response
    */
   async store ({ request, response }) {
+    try {
+      const fileJar = request.file('images',{
+        types: ['image'],
+        size:  '2mb'
+      })
+
+      //Retorno do usuario
+      let images = [] 
+      
+      if(!file.files){//unico arquivo
+        const file = await manage_single_upload(fileJar)
+
+        if(file.moved()){
+          const image = await Image.create({
+            path: file.fileName,
+            size: file.size,
+            original_name: file.clientName,
+            extension: file.subtype
+          })
+          images.push(image)
+          
+          return response.status(201).send({ successes: images, errors:{}})
+          
+        }
+      }
+
+    } catch (error) {
+      
+    }
   }
 
   /**
