@@ -77,5 +77,7 @@ const manage_multiple_upload = async (fileJar, path = null) => {
 }
 module.exports = {
 
-    str_random
+    str_random,
+    manage_single_upload,
+    manage_multiple_upload
 }
