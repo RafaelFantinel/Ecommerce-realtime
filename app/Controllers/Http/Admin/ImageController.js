@@ -3,8 +3,10 @@
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
+
 const Image = user('app/Models/Image')
-const { manage_single_upload , manage_multiple_uploads} = use('App/Helpers')
+const { manage_single_upload, manage_multiple_uploads } = use('App/Helpers')
+const fs = use('fs')
 /**
  * Resourceful controller for interacting with images
  */
@@ -18,7 +20,7 @@ class ImageController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
+  async index({ request, response, view }) {
   }
 
   /**
@@ -30,7 +32,7 @@ class ImageController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async create ({ request, response, view }) {
+  async create({ request, response, view }) {
   }
 
   /**
@@ -41,20 +43,20 @@ class ImageController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store({ request, response }) {
     try {
-      const fileJar = request.file('images',{
+      const fileJar = request.file('images', {
         types: ['image'],
-        size:  '2mb'
+        size: '2mb'
       })
 
       //Retorno do usuario
-      let images = [] 
-      
-      if(!file.files){//unico arquivo
+      let images = []
+
+      if (!file.files) {//unico arquivo
         const file = await manage_single_upload(fileJar)
 
-        if(file.moved()){
+        if (file.moved()) {
           const image = await Image.create({
             path: file.fileName,
             size: file.size,
@@ -62,9 +64,9 @@ class ImageController {
             extension: file.subtype
           })
           images.push(image)
-          
-          return response.status(201).send({ successes: images, errors:{}})
-          
+
+          return response.status(201).send({ successes: images, errors: {} })
+
         }
         return response.status(400).send({
           message: 'Não foi possivel procesar esta imagem no momento'
@@ -72,8 +74,8 @@ class ImageController {
       }
       let files = await manage_multiple_uploads(fileJar)
       await Promise.all(
-        files.successes.map(async file =>{
-          const image = await Image.create({ 
+        files.successes.map(async file => {
+          const image = await Image.create({
             path: file.fileName,
             size: file.size,
             original_name: file.clientName,
@@ -103,7 +105,7 @@ class ImageController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params:{ id }, request, response, view }) {
+  async show({ params: { id }, request, response, view }) {
     const image = await Image.findOrFail(id)
     return response.send(400)
   }
@@ -117,7 +119,7 @@ class ImageController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async edit ({ params, request, response, view }) {
+  async edit({ params, request, response, view }) {
   }
 
   /**
@@ -128,16 +130,16 @@ class ImageController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params: { id }, request, response }) {
+  async update({ params: { id }, request, response }) {
     const image = await Image.findOrFail(id)
     try {
-      image.merge( request.only(['original_name']) )
+      image.merge(request.only(['original_name']))
       await image.save()
       response.status(200).send(image)
     } catch (error) {
       return response.satus(400).send({
         message: 'Não foi possivel atualizar esta imagem no momento!'
-        
+
       })
     }
   }
@@ -150,7 +152,20 @@ class ImageController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy({ params: { id }, request, response }) {
+    try {
+      await image.delete(id)
+      let filepath = Helpers.publicPath(`uploads/${image.path}`)
+      await fs.unlink(filepath, err => {
+        if (!err)
+          await image.delete()
+      })
+      return response.status(204).send()
+    } catch (error) {
+      return response.status(400).send({
+        message: 'Não foi possivel deletar a imagem no momento!'
+      })
+    }
   }
 }
 
