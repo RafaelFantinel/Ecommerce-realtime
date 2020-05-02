@@ -5,6 +5,7 @@
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 const Coupon = use('App/Models/Coupon')
 const Databse = use('Database')
+const Service = use('App/Services/Coupon/CouponService')
 /**
  * Resourceful controller for interacting with coupons
  */
@@ -18,13 +19,13 @@ class CouponController {
    * @param {Response} ctx.response
    * @param {object} ctx.pagination
    */
-  async index ({ request, response, pagination }) {
+  async index({ request, response, pagination }) {
     const code = request.input('code');
     const query = Coupon.query()
-    if(code){
-      query.where('code','ILIKE',`%${code}%`)
+    if (code) {
+      query.where('code', 'ILIKE', `%${code}%`)
     }
-    const coupons = await query.paginate(pagination.page,pagination.limit)
+    const coupons = await query.paginate(pagination.page, pagination.limit)
     return response.send(coupons)
   }
 
@@ -37,7 +38,7 @@ class CouponController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async create ({ request, response, view }) {
+  async create({ request, response, view }) {
   }
 
   /**
@@ -48,7 +49,53 @@ class CouponController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store({ request, response }) {
+    const trx = await Database.beginTransaction()
+    var can_use_for = {
+      client: false,
+      product: false
+    }
+    try {
+      const couponData = request.only([
+        'code',
+        'discount',
+        'valid_from',
+        'valid_until',
+        'quantity',
+        'type',
+        'recursive'
+      ])
+      const { users, products } = request.only(['users', 'products'])
+      const coupon = await Coupon.create(couponData, trx)
+
+      const service = new Service(coupon, trx)
+
+      if (users && users.length > 0) {
+        await service.syncUsers(users)
+        can_use_for.client = true
+      }
+
+      if (products && products.length > 0) {
+        await service.syncProducts(products)
+        can_use_for.product = true
+      }
+
+      if (can_use_for.product && can_use_for.client) {
+        coupon.can_use_for = 'product_client';
+      } else if (can_use_for.product && !can_use_for.client) {
+        coupon.can_use_for = 'product';
+      } else if (!can_use_for.product && can_use_for.client) {
+        coupon.can_use_for = 'client';
+      }else{
+        coupon.can_use_for = 'all';
+      }
+      await coupon.save(trx)
+      await trx.commit();
+      return response.status(201).send(coupon)
+    } catch (error) {
+      await trx.rollback()
+      return response.status(400).send({ message : 'Não foi possivel criar  o cupom no momento'})
+    }
   }
 
   /**
@@ -60,7 +107,7 @@ class CouponController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params:{id}, request, response, view }) {
+  async show({ params: { id }, request, response, view }) {
     const coupon = await Coupon.findOrFail(id)
     return response.send(coupon)
   }
@@ -74,7 +121,7 @@ class CouponController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async edit ({ params, request, response, view }) {
+  async edit({ params, request, response, view }) {
   }
 
   /**
@@ -85,7 +132,7 @@ class CouponController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update({ params, request, response }) {
   }
 
   /**
@@ -96,7 +143,7 @@ class CouponController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params:{ id }, request, response }) {
+  async destroy({ params: { id }, request, response }) {
     const trx = await Database.beginTransaction()
     const coupon = await Coupon.findOrFail(id)
     try {
@@ -109,7 +156,7 @@ class CouponController {
     } catch (error) {
       await trx.rollback()
       return response.status(4000).send({
-        'Não foi possivel deletar este cupom  no momento'
+       message: 'Não foi possivel deletar este cupom  no momento'
       })
     }
 
