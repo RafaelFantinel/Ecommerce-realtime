@@ -3,7 +3,7 @@
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
-
+const Coupon = use('App/Models/Coupon')
 /**
  * Resourceful controller for interacting with coupons
  */
@@ -15,9 +15,16 @@ class CouponController {
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
-   * @param {View} ctx.view
+   * @param {object} ctx.pagination
    */
-  async index ({ request, response, view }) {
+  async index ({ request, response, pagination }) {
+    const code = request.input('code');
+    const query = Coupon.query()
+    if(code){
+      query.where('code','ILIKE',`%${code}%`)
+    }
+    const coupons = await query.paginate(pagination.page,pagination.limit)
+    return response.send(coupons)
   }
 
   /**
