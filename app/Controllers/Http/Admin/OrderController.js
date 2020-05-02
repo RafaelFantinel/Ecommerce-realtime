@@ -3,7 +3,8 @@
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
-
+const Order = use('App/Models/Order')
+const Databse = use('Database')
 /**
  * Resourceful controller for interacting with orders
  */
@@ -15,9 +16,22 @@ class OrderController {
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
-   * @param {View} ctx.view
+   * @param {object} ctx.paginate
    */
-  async index ({ request, response, view }) {
+  async index({ request, response, paginate }) {
+    const { status, id } = request.only(['status', 'id'])
+    const query = Order.query()
+
+    if (status && id) {
+      query.where('status', status)
+      query.orWhery('id', 'ILIKE', `%${id}%`)
+    } else if (status) {
+      query.where('status', status)
+    } else if (id) {
+      query.where('id', 'ILIKE', `%${id}%`)
+    }
+    const orders = query.paginate(paginate.page, paginate.limit)
+    return response.send(orders)
   }
 
   /**
@@ -29,7 +43,7 @@ class OrderController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async create ({ request, response, view }) {
+  async create({ request, response, view }) {
   }
 
   /**
@@ -40,7 +54,7 @@ class OrderController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store({ request, response }) {
   }
 
   /**
@@ -52,7 +66,9 @@ class OrderController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async show({ params: { id }, request, response, view }) {
+    const order = await Order.findOrFail(id)
+    return response.send(400)
   }
 
   /**
@@ -64,7 +80,7 @@ class OrderController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async edit ({ params, request, response, view }) {
+  async edit({ params, request, response, view }) {
   }
 
   /**
@@ -75,7 +91,7 @@ class OrderController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update({ params, request, response }) {
   }
 
   /**
@@ -86,7 +102,21 @@ class OrderController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy({ params: { id }, request, response }) {
+    const order = await Order.findOrFail(id)
+    const trx = await Database.beginTransaction()
+    try {
+      await oprder.items().delete(trx)
+      await order.coupons().delete(trx)
+      await order.delete(trx)
+      await trx.commit()
+      return response.status(204).send()
+    } catch (error) {
+      await trx.rollback()
+      return response.status(400).send({
+       message: 'Erro ao deletar este pedido'
+      })
+    }
   }
 }
 
