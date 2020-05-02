@@ -5,6 +5,7 @@
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 const Order = use('App/Models/Order')
 const Databse = use('Database')
+const Service = use('App/Services/Order/OrderService')
 /**
  * Resourceful controller for interacting with orders
  */
@@ -55,6 +56,22 @@ class OrderController {
    * @param {Response} ctx.response
    */
   async store({ request, response }) {
+    const trx = await Database.beginTransaction()
+    try {
+      const { user_id, items, status } = request.all()
+      let order = await Order.create({ user_id, status }, trx)
+      const service = new Service(order, trx)
+      if(item && items.length > 0 ){
+        await service.syncItems(items)
+      }
+      await trx.commit()
+      return response.status(201).send(order)
+    } catch (error) {
+      await trx.rollback()
+      return response.status(400).send({
+        message: 'Não foi possivel criar o pedido no momento'
+      })
+    }
   }
 
   /**
@@ -114,7 +131,7 @@ class OrderController {
     } catch (error) {
       await trx.rollback()
       return response.status(400).send({
-       message: 'Erro ao deletar este pedido'
+        message: 'Erro ao deletar este pedido'
       })
     }
   }
