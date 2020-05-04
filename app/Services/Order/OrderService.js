@@ -6,7 +6,7 @@ class OderService {
         this.trx = trx
     }
 
-    
+
     async syncItems(items) {
         if (!Array.isArray(items)) {
             return false
@@ -34,6 +34,13 @@ class OderService {
 
 
     async canApplyDiscount(coupon) {
+        //Verifica a validade do cupom por data
+        const now = new Database().getTime()
+        if (now > coupon.valid_from.getTime() || (typeof coupon.valid_until == 'object' && coupon.valid_until.getTime() < now)) {
+            //Verifica se o cupom ja entrou em validade e verifica se há uma data de expiração, se houver, verifica se o cupom expirou
+            return false
+        }
+
         const couponProducts = await Database.from('coupon_products')
             .where('coupon_id', coupon.id)
             .pluck('product_id')
