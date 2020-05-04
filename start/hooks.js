@@ -1,4 +1,4 @@
-const { hooks } = require('@adonisjs/ignitor')
+const { hooks } = require('@adonisjs/fold')
 
 hooks.after.providersBooted(() => {
   const Validator = use('Validator')
