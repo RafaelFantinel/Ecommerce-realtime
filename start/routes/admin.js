@@ -4,7 +4,10 @@ const Route = use('Route')
 
 Route.group(() => {
     //Categories resource routes
-    Route.resource('categories', 'CategoryController').apiOnly()
+    Route.resource('categories', 'CategoryController').apiOnly().validator(new.Map([
+        [['categories.store'], ['Admin/SotreCategory']],
+        [['categoires.update'], ['Admin/StoreCategory']]
+    ]))
 
 
     //Product resource routes
