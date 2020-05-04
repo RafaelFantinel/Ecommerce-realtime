@@ -4,11 +4,16 @@
 const Model = use('Model')
 
 class Discount extends Model {
-  static get table () {
+  static get table() {
     return 'coupon_order'
   }
-
-  order () {
+  static boot() {
+    super.boot()
+    this.addHook('beforeSave', 'DiscountHook.calculateValues')
+    this.addHook('afterSave', 'DiscountHook.decrementCoupons')
+    this.addHook('afterDelete', 'DiscountHook.incrementCoupons')
+  }
+  order() {
     // PK order_id
     // Nome da PK na tabela de order é id
     // Primeiro parametro é o Model, o segundo é o campo
@@ -16,7 +21,7 @@ class Discount extends Model {
     return this.belongsTo('App/Models/Order', 'order_id', 'id')
   }
 
-  coupon () {
+  coupon() {
     return this.belongsTo('App/Models/Coupon', 'coupon_id', 'id')
   }
 }
