@@ -13,7 +13,10 @@ class ImageTransformer extends TransformerAbstract {
     image = image.toJSON();
     return {
       id: Image.id,
-      url: Image.url
+      url: Image.url,
+      size: image.size,
+      original_name: image.original_name,
+      extension: image.extension
     }
   }
 }
