@@ -8,6 +8,7 @@ const Database = use('Database')
 const Service = use('App/Services/Order/OrderService')
 const Discount = use('App/Models/Discount')
 const Coupon = use('App/Models/Coupon')
+const Transformer = use('App/Transformer/OrderTransformer')
 /**
  * Resourceful controller for interacting with orders
  */
@@ -21,7 +22,7 @@ class OrderController {
    * @param {Response} ctx.response
    * @param {object} ctx.paginate
    */
-  async index({ request, response, pagination }) {
+  async index({ request, response, pagination, transform }) {
     const { status, id } = request.only(['status', 'id'])
     const query = Order.query()
 
@@ -33,7 +34,8 @@ class OrderController {
     } else if (id) {
       query.where('id', 'ILIKE', `%${id}%`)
     }
-    const orders =  await query.paginate(pagination.page, pagination.limit)
+    var orders = await query.paginate(pagination.page, pagination.limit)
+    orders = await transform.paginate(orders, Transformer)
     return response.send(orders)
   }
 
@@ -57,16 +59,17 @@ class OrderController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store({ request, response }) {
+  async store({ request, response, transform }) {
     const trx = await Database.beginTransaction()
     try {
       const { user_id, items, status } = request.all()
-      let order = await Order.create({ user_id, status }, trx)
+      var order = await Order.create({ user_id, status }, trx)
       const service = new Service(order, trx)
       if (item && items.length > 0) {
         await service.syncItems(items)
       }
       await trx.commit()
+      order = await transform.item(order, Transformer)
       return response.status(201).send(order)
     } catch (error) {
       await trx.rollback()
@@ -85,8 +88,9 @@ class OrderController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show({ params: { id }, request, response, view }) {
-    const order = await Order.findOrFail(id)
+  async show({ params: { id }, request, response, view, transform }) {
+    var order = await Order.findOrFail(id)
+    order = await transform.item(order, Transformer)
     return response.send(400)
   }
 
@@ -127,9 +131,27 @@ class OrderController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update({ params, request, response }) {
+  async update({ params: { id }, request, response, transform }) {
+    var order = await Order.findOrFail(id)
+    const trx = await Database.beginTransaction()
+    try {
+      const { user_id, items, status } = request.all()
+      order.merge({ user_id, status })
+      const service = new Service(order, trx)
+      await service.updateItems(items)
+      await order.save(trx)
+      await trx.commit()
+      order = await transform
+        .include('items,user,discounts,coupons')
+        .item(order, Transformer)
+      return response.send(order)
+    } catch (error) {
+      await trx.rollback()
+      return response.status(400).send({
+        message: 'não foi possível atualizar este pedido no momento!'
+      })
+    }
   }
-
   /**
    * Delete a order with id.
    * DELETE orders/:id
