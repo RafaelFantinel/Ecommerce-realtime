@@ -1,6 +1,6 @@
 'use strict'
 const Database = use('Database')
-class OderService {
+class OrderService {
     constructor(model, trx = false) {
         this.model = model
         this.trx = trx
