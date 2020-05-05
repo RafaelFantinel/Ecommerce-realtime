@@ -18,6 +18,7 @@ class CategoryController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.view
+   * @param {TransformWith} ctx.transform
    * @param {Object} ctx.pagination
    */
   async index ({ request, response, view, pagination, transform }) {
@@ -54,10 +55,11 @@ class CategoryController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store ({ request, response , transform}) {
     try {
       const { title, description , image_id } = request.all();
-      const category = await Category.create({ title, description , image_id})
+      var category = await Category.create({ title, description , image_id})
+      category = await transform.item(category, Transformer);
       return response.status(201).send(category)  
     } catch (error) {
       return response.status(400).send({
@@ -76,8 +78,9 @@ class CategoryController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params: {id }, request, response, view }) {
-    const category = await Category.findOrFail(id);
+  async show ({ params: {id }, request, response, view, transform }) {
+    var category = await Category.findOrFail(id);
+    category = await transform.item(category, Transformer)
     return response.send(category)
   }
 
@@ -101,11 +104,12 @@ class CategoryController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params: { id }, request, response }) {
-    const category = await Category.findOrFail(id)
+  async update ({ params: { id }, request, response, transform }) {
+    var category = await Category.findOrFail(id)
     const { title,description,image_id} = request.all()
     category.merge({ title, description , image_id })
     await category.save()
+    category = await tranform.item(category, Transformer)
     return response.send(category)
   }
 
