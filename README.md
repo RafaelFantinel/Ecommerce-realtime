@@ -1,31 +1,24 @@
-# Adonis fullstack application
+# Aplicação Rest de Ecommerce em AdonisJS 
 
-This is the fullstack boilerplate for AdonisJs, it comes pre-configured with.
-
+Tecnologias e Dependências Utilizadas
 1. Bodyparser
 2. Session
-3. Authentication
+3. Authentication JWT
 4. Web security middleware
 5. CORS
 6. Edge template engine
 7. Lucid ORM
 8. Migrations and seeds
+9. PostgreSQL
+10.Validators
+11.Bumblebee Transformers
 
 ## Setup
 
-Use the adonis command to install the blueprint
+-Executar o comando `npm install`.
+## Database
+-Criar arquivo `.ENV` na raiz do projeto, setar os credenciais do  banco.
 
-```bash
-adonis new yardstick
-```
+# Migrations
+-Executar o comando `adonis:migration:run`
 
-or manually clone the repo and then run `npm install`.
-
-
-### Migrations
-
-Run the following command to run startup migrations.
-
-```js
-adonis migration:run
-```
