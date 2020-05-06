@@ -6,7 +6,7 @@ const Model = use('Model')
 class Product extends Model {
   // Imagem de destaque do Produto
   image () {
-    return this.belongsTo9('App/Models/Image')
+    return this.belongsTo('App/Models/Image')
   }
 
   // Relacionamento entre Produto e Imagens
