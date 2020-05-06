@@ -1,15 +1,12 @@
 'use strict'
 
-const OrderHook = exports = module.exports = {}
+const OrderHook = (exports = module.exports = {})
 
 OrderHook.updateValues = async model => {
-  modelInstance.SsideLoaded.subtotal = await model.items().getSum('subtotal')
-
-  model.SsideLoaded.qty_items = await model.items().getSum('quantity')
-
-  model.SsideLoaded.discount = await model.discounts().getSum('discount')
-
-  model.total = model.SsideLoaded.subtotal - model.SsideLoaded.discount
+  model.$sideLoaded.subtotal = await model.items().getSum('subtotal')
+  model.$sideLoaded.qty_items = await model.items().getSum('quantity')
+  model.$sideLoaded.discount = await model.discounts().getSum('discount')
+  model.total = model.$sideLoaded.subtotal - model.$sideLoaded.discount
 }
 
 OrderHook.updateCollectionValues = async models => {
