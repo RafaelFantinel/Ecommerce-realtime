@@ -91,7 +91,7 @@ class OrderController {
    */
   async show({ params: { id }, request, response, view, transform }) {
     var order = await Order.findOrFail(id)
-    order = await transform.item(order, Transformer)
+    order = await transform.include('items,user,discounts').item(order, Transformer)
     return response.send(400)
   }
 
