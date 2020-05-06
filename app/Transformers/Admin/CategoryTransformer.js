@@ -2,7 +2,6 @@
 
 const TransformerAbstract = use('Adonis/Addons/Bumblebee/TransformerAbstract')
 const ImageTransformer = use('App/Transformers/Admin/ImageTransformer')
-
 /**
  * CategoryTransformer class
  *
@@ -10,11 +9,13 @@ const ImageTransformer = use('App/Transformers/Admin/ImageTransformer')
  * @constructor
  */
 class CategoryTransformer extends TransformerAbstract {
-  //Passa o valor da imagem passado no metodo includeImage
   defaultInclude() {
     return ['image']
   }
 
+  /**
+   * This method is used to transform the data.
+   */
   transform(model) {
     return {
       id: model.id,
@@ -22,9 +23,9 @@ class CategoryTransformer extends TransformerAbstract {
       description: model.description
     }
   }
-  includeImage(model){
-    //Relacionamento entre item e imagem
-    return this.item(model.getRelated('image'),ImageTransformer)
+
+  includeImage(model) {
+    return this.item(model.getRelated('image'), ImageTransformer)
   }
 }
 

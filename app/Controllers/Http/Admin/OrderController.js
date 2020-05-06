@@ -6,9 +6,9 @@
 const Order = use('App/Models/Order')
 const Database = use('Database')
 const Service = use('App/Services/Order/OrderService')
-const Discount = use('App/Models/Discount')
 const Coupon = use('App/Models/Coupon')
-const Transformer = use('App/Transformer/OrderTransformer')
+const Discount = use('App/Models/Discount')
+const Transformer = use('App/Transformers/Admin/OrderTransformer')
 /**
  * Resourceful controller for interacting with orders
  */
@@ -65,7 +65,7 @@ class OrderController {
       const { user_id, items, status } = request.all()
       var order = await Order.create({ user_id, status }, trx)
       const service = new Service(order, trx)
-      if (item && items.length > 0) {
+      if (items && items.length > 0) {
         await service.syncItems(items)
       }
       await trx.commit()
@@ -74,7 +74,7 @@ class OrderController {
     } catch (error) {
       await trx.rollback()
       return response.status(400).send({
-        message: 'Não foi possivel criar o pedido no momento'
+        message: 'Não foi possível criar o pedido no momento!'
       })
     }
   }
